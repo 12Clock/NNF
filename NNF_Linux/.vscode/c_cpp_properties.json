@@ -1,0 +1,19 @@
+{
+    "configurations": [
+        {
+            "name": "Ubuntu",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/usr/local/include/c++/7.4.0/**",
+                "${workspaceFolder}/src/**",
+                "/usr/local/cuda/include/**"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/g++",
+            "cStandard": "c11",
+            "cppStandard": "c++14",
+            "configurationProvider": "ms-vscode.cmake-tools"
+        }
+    ],
+    "version": 4
+}
