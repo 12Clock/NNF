@@ -1,0 +1,1 @@
+/usr/bin/g++ -fPIC  -std=c++11 -g -shared -Wl,-soname,libhello_shared_library.so -o libhello_shared_library.so CMakeFiles/hello_shared_library.dir/src/NNFBase/utils/NNFException.cpp.o 

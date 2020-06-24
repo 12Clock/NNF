@@ -1,8 +1,8 @@
 #ifndef NNFCU_ALLOCATOR_CPP
 #define NNFCU_ALLOCATOR_CPP
 
-#include "NNFCUAllocator.h"
-#include <FTen/generic/NNFMacros.h>
+#include <src/FTen/cuda/NNFCUMacros.h>
+#include <src/FTen/cuda/NNFCUAllocator.h>
 #include <assert.h>
 #include <sstream>
 #include <iostream>
@@ -17,9 +17,7 @@ namespace cache
 void update_stat(Stat& stat, int64_t amount) {
   stat.current += amount;
 
-  if(stat.current < 0){
-      NNF_ERROR_PRINT(NNF_STR_CONCAT2("Negative tracked stat in CUDA allocator (likely logic error).", __FILE__));
-  }
+  NNF_INTERNAL_ASSERT(stat.current >= 0, "Negative tracked stat in CUDA allocator (likely logic error).");
 
   stat.peak = std::max(stat.current, stat.peak);
   if (amount > 0) {
@@ -83,14 +81,14 @@ StatType DeviceAllocator::get_stat_type_for_pool(const CUDABlockPool& pool) cons
     }else if(&pool == &large_blocks){
         return StatType::LARGE_POOL;
     }else{
-        NNF_ERROR_PRINT(NNF_STR_CONCAT2("Can't find type of pool, this pool is Invalid(DeviceAllocator::get_stat_type_for_pool) in File: ", __FILE__));
+        NNF_ERROR("Can't find type of pool, this pool is Invalid");
     }
 }
 
 void DeviceAllocator::free_block(CUDABlock* block)
 {
     if(!block->allocated && block->event_count == 0){
-        NNF_ERROR_PRINT(NNF_STR_CONCAT2("ERROR: Can't free unallocated block and number of events is 0 (DeviceAllocator::free_block) in File: ", __FILE__));
+        NNF_ERROR("ERROR: Can't free unallocated block and number of events is 0.");
     }
 
     size_t original_block_size = block->size;
@@ -222,13 +220,8 @@ void DeviceAllocator::synchronize_and_free_events()
         cudaEvent_t event = e.first;
         CUDABlock* block = e.second;
 
-        if(cudaEventSynchronize(event) != cudaSuccess){
-            NNF_ERROR_PRINT(NNF_STR_CONCAT2("An event of cuda can't synchronize (DeviceAllocator::synchronize_and_free_events) in ", __FILE__));
-        }
-
-        if(cudaEventDestroy(event) != cudaSuccess){
-            NNF_ERROR_PRINT(NNF_STR_CONCAT2("An event of cuda can't freed (DeviceAllocator::synchronize_and_free_events) in ", __FILE__));
-        }
+        NNFCU_CHECK(cudaEventSynchronize(event));
+        NNFCU_CHECK(cudaEventDestroy(event));
 
         block->event_count -= 1;
         if(block->event_count == 0){
@@ -301,43 +294,27 @@ bool DeviceAllocator::should_split(CUDABlock* block, size_t size)
     }else if(block->pool == &large_blocks){
         return remaining >= kSmallSize;
     }else{
-        NNF_ERROR_PRINT(NNF_STR_CONCAT2("Invalid pool(DeviceAllocator::should_split)", __FILE__));
+        NNF_ERROR("Invalid pool.");
     }
 }
 
 cudaEvent_t DeviceAllocator::create_event_internal() {
     cudaEvent_t event;
-    NNF_CUDA_CHECK(
-        cudaEventCreateWithFlags(&event, cudaEventDisableTiming), 
-        "DeviceAllocator::insert_events",
-        __FILE__
-    );
+    NNFCU_CHECK(cudaEventCreateWithFlags(&event, cudaEventDisableTiming));
     return event;
   }
 
 void DeviceAllocator::insert_events(CUDABlock* block)
 {
     int prev_device;
-    NNF_CUDA_CHECK(
-        cudaGetDevice(&prev_device), 
-        "DeviceAllocator::insert_events",
-        __FILE__
-    );
+    NNFCU_CHECK(cudaGetDevice(&prev_device));
     
     stream_set streams(std::move(block->stream_uses));
     for(auto it = streams.begin(); it != streams.end(); it++){
-        NNF_CUDA_CHECK(
-            cudaSetDevice(it->device_index()), 
-            "DeviceAllocator::insert_events",
-            __FILE__
-        );
+        NNFCU_CHECK(cudaSetDevice(it->device_index()));
 
         cudaEvent_t event = create_event_internal();
-        NNF_CUDA_CHECK(
-            cudaEventRecord(event, it->stream()), 
-            "DeviceAllocator::insert_events",
-            __FILE__
-        );
+        NNFCU_CHECK(cudaEventRecord(event, it->stream()));
     }
 }
 
@@ -370,16 +347,13 @@ CUDABlock* DeviceAllocator::malloc(int device, size_t size, cudaStream_t stream)
             size_t device_free;
             size_t device_total;
             cudaMemGetInfo(&device_free, &device_total);
-            NNF_ERROR_PRINT(NNF_STR_CONCAT3(
-                NNF_STR_CONCAT4("CUDA out of memory. Tried to allocate ", 
-                format_size(alloc_size), " GPU ", NNF2STRING(device)), 
-                NNF_STR_CONCAT4(format_size(device_total), "total capacity;",
+            NNF_CHECK_WITH(nnf::utils::CUDAOutOfMemoryError, false,
+                "CUDA out of memory. Tried to allocate ", format_size(alloc_size), 
+                " GPU ", NNF2STRING(device), "; ", format_size(device_total), "total capacity; ",
                 format_size(stats.allocated_bytes[static_cast<size_t>(StatType::AGGREGATE)].current),
-                " already allocated; "), 
-                NNF_STR_CONCAT4(format_size(device_free), " free; ",
+                " already allocated; ", format_size(device_free), " free; ",
                 format_size(stats.reserved_bytes[static_cast<size_t>(StatType::AGGREGATE)].current),
-                " reserved in total by PyTorch)")
-                ));
+                " reserved in total by NNF)");
         } else {
             NNF_ERROR_PRINT(NNF_STR_CONCAT3(cudaGetErrorString(params.err), " in ", __FILE__));
         }

@@ -1,0 +1,4 @@
+/home/LineZ/NNF/build/CMakeFiles/rebuild_cache.dir
+/home/LineZ/NNF/build/CMakeFiles/edit_cache.dir
+/home/LineZ/NNF/build/CMakeFiles/hello_shared_library.dir
+/home/LineZ/NNF/build/CMakeFiles/hello_shared_binary.dir

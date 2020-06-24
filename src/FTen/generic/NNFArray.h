@@ -5,8 +5,6 @@
 
 namespace nnf{
 
-typedef int int32_t;
-
 struct float_array
 {
     float *array;

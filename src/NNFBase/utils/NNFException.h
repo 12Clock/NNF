@@ -3,21 +3,26 @@
 
 #include <string>
 #include <vector>
+#include <src/NNFBase/utils/NNFStringUtils.h>
 
 namespace nnf {
 
 namespace utils{
 
+/*
+Basic types of all errors in NNF
+*/
 class NNF_Error: public std::exception
 {
     private:
-        std::string msg_;
-        std::vector<std::string> context_;
-        std::string what_;
+        std::string msg_;                    // Message about the current error
+        std::vector<std::string> context_;   // Context error message
+        std::string what_;                   // Including the above two kinds of information
 
-        void refresh_what();
+        void refresh_what();                 // When add a context error message, refresh what
 
     public:
+        NNF_Error(SourceLocation source_location, const std::string& msg);
         NNF_Error(const std::string& msg);
         NNF_Error(const char* file, const uint32_t line, const char* condition, const std::string& msg);
         void add_context(std::string new_msg);

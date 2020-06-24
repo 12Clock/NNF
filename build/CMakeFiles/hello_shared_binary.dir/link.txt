@@ -1,0 +1,1 @@
+/usr/bin/g++  -std=c++11 -g -rdynamic CMakeFiles/hello_shared_binary.dir/main.cpp.o -o hello_shared_binary  -Wl,-rpath,/home/LineZ/NNF/build libhello_shared_library.so 

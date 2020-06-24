@@ -1,0 +1,1 @@
+/usr/bin/g++  -std=c++11 -g -rdynamic CMakeFiles/main.out,.dir/main.cpp.o -o main.out, 

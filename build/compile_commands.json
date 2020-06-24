@@ -1,0 +1,12 @@
+[
+{
+  "directory": "/home/LineZ/NNF/build",
+  "command": "/usr/bin/g++ -Dhello_shared_library_EXPORTS -I/home/LineZ/NNF  -std=c++11 -g -fPIC -o CMakeFiles/hello_shared_library.dir/src/NNFBase/utils/NNFException.cpp.o -c /home/LineZ/NNF/src/NNFBase/utils/NNFException.cpp",
+  "file": "/home/LineZ/NNF/src/NNFBase/utils/NNFException.cpp"
+},
+{
+  "directory": "/home/LineZ/NNF/build",
+  "command": "/usr/bin/g++  -I/home/LineZ/NNF  -std=c++11 -g -o CMakeFiles/hello_shared_binary.dir/main.cpp.o -c /home/LineZ/NNF/main.cpp",
+  "file": "/home/LineZ/NNF/main.cpp"
+}
+]

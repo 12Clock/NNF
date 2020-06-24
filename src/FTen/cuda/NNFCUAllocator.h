@@ -12,6 +12,19 @@
 /*
 Code reference pytorch, github: https://github.com/pytorch/pytorch/blob/master/c10/cuda/CUDACachingAllocator.cpp
 */
+namespace nnf{
+
+namespace utils{
+
+class CUDAOutOfMemoryError: nnf::utils::NNF_Error{
+  using NNF_Error::NNF_Error;
+
+  
+};
+
+} // namespace utils
+
+} // namespace nnf
 
 namespace cuda
 {
