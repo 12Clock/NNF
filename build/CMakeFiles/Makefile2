@@ -73,75 +73,111 @@ CMAKE_BINARY_DIR = /home/LineZ/NNF/build
 # Directory level rules for the build root directory
 
 # The main recursive "all" target.
-all: CMakeFiles/hello_shared_library.dir/all
-all: CMakeFiles/hello_shared_binary.dir/all
+all: CMakeFiles/test_nnf.dir/all
+all: src/FTen/all
 
 .PHONY : all
 
 # The main recursive "preinstall" target.
-preinstall:
+preinstall: src/FTen/preinstall
 
 .PHONY : preinstall
 
 # The main recursive "clean" target.
-clean: CMakeFiles/hello_shared_library.dir/clean
-clean: CMakeFiles/hello_shared_binary.dir/clean
+clean: CMakeFiles/test_nnf.dir/clean
+clean: src/FTen/clean
 
 .PHONY : clean
 
 #=============================================================================
-# Target rules for target CMakeFiles/hello_shared_library.dir
+# Directory level rules for directory src/FTen
 
-# All Build rule for target.
-CMakeFiles/hello_shared_library.dir/all:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hello_shared_library.dir/build.make CMakeFiles/hello_shared_library.dir/depend
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hello_shared_library.dir/build.make CMakeFiles/hello_shared_library.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/LineZ/NNF/build/CMakeFiles --progress-num=3,4 "Built target hello_shared_library"
-.PHONY : CMakeFiles/hello_shared_library.dir/all
+# Recursive "all" directory target.
+src/FTen/all: src/FTen/cuda/all
 
-# Build rule for subdir invocation for target.
-CMakeFiles/hello_shared_library.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/LineZ/NNF/build/CMakeFiles 2
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/hello_shared_library.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/LineZ/NNF/build/CMakeFiles 0
-.PHONY : CMakeFiles/hello_shared_library.dir/rule
+.PHONY : src/FTen/all
 
-# Convenience name for target.
-hello_shared_library: CMakeFiles/hello_shared_library.dir/rule
+# Recursive "preinstall" directory target.
+src/FTen/preinstall: src/FTen/cuda/preinstall
 
-.PHONY : hello_shared_library
+.PHONY : src/FTen/preinstall
 
-# clean rule for target.
-CMakeFiles/hello_shared_library.dir/clean:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hello_shared_library.dir/build.make CMakeFiles/hello_shared_library.dir/clean
-.PHONY : CMakeFiles/hello_shared_library.dir/clean
+# Recursive "clean" directory target.
+src/FTen/clean: src/FTen/cuda/clean
+
+.PHONY : src/FTen/clean
 
 #=============================================================================
-# Target rules for target CMakeFiles/hello_shared_binary.dir
+# Directory level rules for directory src/FTen/cuda
+
+# Recursive "all" directory target.
+src/FTen/cuda/all: src/FTen/cuda/CMakeFiles/gpu.dir/all
+
+.PHONY : src/FTen/cuda/all
+
+# Recursive "preinstall" directory target.
+src/FTen/cuda/preinstall:
+
+.PHONY : src/FTen/cuda/preinstall
+
+# Recursive "clean" directory target.
+src/FTen/cuda/clean: src/FTen/cuda/CMakeFiles/gpu.dir/clean
+
+.PHONY : src/FTen/cuda/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/test_nnf.dir
 
 # All Build rule for target.
-CMakeFiles/hello_shared_binary.dir/all: CMakeFiles/hello_shared_library.dir/all
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hello_shared_binary.dir/build.make CMakeFiles/hello_shared_binary.dir/depend
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hello_shared_binary.dir/build.make CMakeFiles/hello_shared_binary.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/LineZ/NNF/build/CMakeFiles --progress-num=1,2 "Built target hello_shared_binary"
-.PHONY : CMakeFiles/hello_shared_binary.dir/all
+CMakeFiles/test_nnf.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nnf.dir/build.make CMakeFiles/test_nnf.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nnf.dir/build.make CMakeFiles/test_nnf.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/LineZ/NNF/build/CMakeFiles --progress-num=5,6 "Built target test_nnf"
+.PHONY : CMakeFiles/test_nnf.dir/all
 
 # Build rule for subdir invocation for target.
-CMakeFiles/hello_shared_binary.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/LineZ/NNF/build/CMakeFiles 4
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/hello_shared_binary.dir/all
+CMakeFiles/test_nnf.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/LineZ/NNF/build/CMakeFiles 2
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/test_nnf.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/LineZ/NNF/build/CMakeFiles 0
-.PHONY : CMakeFiles/hello_shared_binary.dir/rule
+.PHONY : CMakeFiles/test_nnf.dir/rule
 
 # Convenience name for target.
-hello_shared_binary: CMakeFiles/hello_shared_binary.dir/rule
+test_nnf: CMakeFiles/test_nnf.dir/rule
 
-.PHONY : hello_shared_binary
+.PHONY : test_nnf
 
 # clean rule for target.
-CMakeFiles/hello_shared_binary.dir/clean:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hello_shared_binary.dir/build.make CMakeFiles/hello_shared_binary.dir/clean
-.PHONY : CMakeFiles/hello_shared_binary.dir/clean
+CMakeFiles/test_nnf.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nnf.dir/build.make CMakeFiles/test_nnf.dir/clean
+.PHONY : CMakeFiles/test_nnf.dir/clean
+
+#=============================================================================
+# Target rules for target src/FTen/cuda/CMakeFiles/gpu.dir
+
+# All Build rule for target.
+src/FTen/cuda/CMakeFiles/gpu.dir/all:
+	$(MAKE) $(MAKESILENT) -f src/FTen/cuda/CMakeFiles/gpu.dir/build.make src/FTen/cuda/CMakeFiles/gpu.dir/depend
+	$(MAKE) $(MAKESILENT) -f src/FTen/cuda/CMakeFiles/gpu.dir/build.make src/FTen/cuda/CMakeFiles/gpu.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/LineZ/NNF/build/CMakeFiles --progress-num=1,2,3,4 "Built target gpu"
+.PHONY : src/FTen/cuda/CMakeFiles/gpu.dir/all
+
+# Build rule for subdir invocation for target.
+src/FTen/cuda/CMakeFiles/gpu.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/LineZ/NNF/build/CMakeFiles 4
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/FTen/cuda/CMakeFiles/gpu.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/LineZ/NNF/build/CMakeFiles 0
+.PHONY : src/FTen/cuda/CMakeFiles/gpu.dir/rule
+
+# Convenience name for target.
+gpu: src/FTen/cuda/CMakeFiles/gpu.dir/rule
+
+.PHONY : gpu
+
+# clean rule for target.
+src/FTen/cuda/CMakeFiles/gpu.dir/clean:
+	$(MAKE) $(MAKESILENT) -f src/FTen/cuda/CMakeFiles/gpu.dir/build.make src/FTen/cuda/CMakeFiles/gpu.dir/clean
+.PHONY : src/FTen/cuda/CMakeFiles/gpu.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

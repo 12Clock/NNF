@@ -32,11 +32,17 @@ namespace details{
     (拼接字符串以方便打印信息)
     */
     template<typename... Args>
-    inline std::string str(const Args&... args)
+    inline decltype(auto) str(const Args&... args)
     {
         std::stringstream oss;
         _str(oss, args...);
         return oss.str();
+    }
+
+
+    inline decltype(auto) stoi(std::string s)
+    {
+        return s.empty()?0:std::stoi(s);
     }
 
     /*

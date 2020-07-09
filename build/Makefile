@@ -131,30 +131,30 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named hello_shared_library
+# Target rules for targets named test_nnf
 
 # Build rule for target.
-hello_shared_library: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 hello_shared_library
-.PHONY : hello_shared_library
+test_nnf: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_nnf
+.PHONY : test_nnf
 
 # fast build rule for target.
-hello_shared_library/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hello_shared_library.dir/build.make CMakeFiles/hello_shared_library.dir/build
-.PHONY : hello_shared_library/fast
+test_nnf/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nnf.dir/build.make CMakeFiles/test_nnf.dir/build
+.PHONY : test_nnf/fast
 
 #=============================================================================
-# Target rules for targets named hello_shared_binary
+# Target rules for targets named gpu
 
 # Build rule for target.
-hello_shared_binary: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 hello_shared_binary
-.PHONY : hello_shared_binary
+gpu: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 gpu
+.PHONY : gpu
 
 # fast build rule for target.
-hello_shared_binary/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hello_shared_binary.dir/build.make CMakeFiles/hello_shared_binary.dir/build
-.PHONY : hello_shared_binary/fast
+gpu/fast:
+	$(MAKE) $(MAKESILENT) -f src/FTen/cuda/CMakeFiles/gpu.dir/build.make src/FTen/cuda/CMakeFiles/gpu.dir/build
+.PHONY : gpu/fast
 
 main.o: main.cpp.o
 
@@ -162,7 +162,7 @@ main.o: main.cpp.o
 
 # target to build an object file
 main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hello_shared_binary.dir/build.make CMakeFiles/hello_shared_binary.dir/main.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nnf.dir/build.make CMakeFiles/test_nnf.dir/main.cpp.o
 .PHONY : main.cpp.o
 
 main.i: main.cpp.i
@@ -171,7 +171,7 @@ main.i: main.cpp.i
 
 # target to preprocess a source file
 main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hello_shared_binary.dir/build.make CMakeFiles/hello_shared_binary.dir/main.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nnf.dir/build.make CMakeFiles/test_nnf.dir/main.cpp.i
 .PHONY : main.cpp.i
 
 main.s: main.cpp.s
@@ -180,35 +180,8 @@ main.s: main.cpp.s
 
 # target to generate assembly for a file
 main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hello_shared_binary.dir/build.make CMakeFiles/hello_shared_binary.dir/main.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nnf.dir/build.make CMakeFiles/test_nnf.dir/main.cpp.s
 .PHONY : main.cpp.s
-
-src/NNFBase/utils/NNFException.o: src/NNFBase/utils/NNFException.cpp.o
-
-.PHONY : src/NNFBase/utils/NNFException.o
-
-# target to build an object file
-src/NNFBase/utils/NNFException.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hello_shared_library.dir/build.make CMakeFiles/hello_shared_library.dir/src/NNFBase/utils/NNFException.cpp.o
-.PHONY : src/NNFBase/utils/NNFException.cpp.o
-
-src/NNFBase/utils/NNFException.i: src/NNFBase/utils/NNFException.cpp.i
-
-.PHONY : src/NNFBase/utils/NNFException.i
-
-# target to preprocess a source file
-src/NNFBase/utils/NNFException.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hello_shared_library.dir/build.make CMakeFiles/hello_shared_library.dir/src/NNFBase/utils/NNFException.cpp.i
-.PHONY : src/NNFBase/utils/NNFException.cpp.i
-
-src/NNFBase/utils/NNFException.s: src/NNFBase/utils/NNFException.cpp.s
-
-.PHONY : src/NNFBase/utils/NNFException.s
-
-# target to generate assembly for a file
-src/NNFBase/utils/NNFException.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hello_shared_library.dir/build.make CMakeFiles/hello_shared_library.dir/src/NNFBase/utils/NNFException.cpp.s
-.PHONY : src/NNFBase/utils/NNFException.cpp.s
 
 # Help Target
 help:
@@ -218,14 +191,11 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... hello_shared_binary"
-	@echo "... hello_shared_library"
+	@echo "... gpu"
+	@echo "... test_nnf"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
-	@echo "... src/NNFBase/utils/NNFException.o"
-	@echo "... src/NNFBase/utils/NNFException.i"
-	@echo "... src/NNFBase/utils/NNFException.s"
 .PHONY : help
 
 

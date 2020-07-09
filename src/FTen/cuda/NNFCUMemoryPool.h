@@ -1,34 +1,18 @@
 #ifndef NNFCU_MEMORY_POOL_H
 #define NNFCU_MEMORY_POOL_H
 
-#include <cuda_runtime_api.h>
+#include <src/FTen/cuda/NNFCUStream.h>
+#include <src/FTen/cuda/NNFCUStream.cpp>
 #include <unordered_set>
+#include <set>
+
+namespace nnf {
 
 namespace cuda{
 
 /*
 Code reference pytorch, github: https://github.com/pytorch/pytorch/blob/master/c10/cuda/CUDACachingAllocator.cpp
 */
-
-class CUDAStream final
-{
-    private:
-        int16_t DeviceIndex; //GPU device index, like "cuda:0"
-        int32_t StreamId; //Cuda stream id
-    public:
-        enum Unsafe { UNSAFE };
-        enum Default { DEFAULT };
-
-        explicit CUDAStream(Unsafe, int16_t index, int32_t id): DeviceIndex(index), StreamId(id) {}
-        explicit CUDAStream(Default, int16_t index): DeviceIndex(index), StreamId(0) {}
-
-        int16_t device_index() const noexcept;
-        int32_t stream_id() const noexcept;
-        cudaStream_t stream() const;
-
-        bool operator==(const CUDAStream &other) const noexcept;
-        bool operator!=(const CUDAStream &other) const noexcept;
-};
 
 using stream_set = std::unordered_set<CUDAStream>;
 
@@ -40,6 +24,10 @@ constexpr size_t kSmallBuffer = 2097152;    // "small" allocations are packed in
 constexpr size_t kLargeBuffer = 20971520;   // "large" allocations may be packed in 20 MiB blocks
 constexpr size_t kMinLargeAlloc = 10485760; // Allocations between 1 and 10 MiB may use kLargeBuffer
 constexpr size_t kRoundLarge = 2097152;     // Round up large allocs to 2 MiB
+
+struct CUDABlock;
+typedef bool (*Comparison)(const CUDABlock*, const CUDABlock*);
+typedef std::set<CUDABlock*, Comparison> CUDABlockPool;
 
 struct CUDABlock
 {
@@ -71,5 +59,7 @@ struct CUDABlock
 } // namespace cache
 
 } // namespace cuda
+
+} // namespace nnf
 
 #endif

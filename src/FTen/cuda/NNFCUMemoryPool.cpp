@@ -3,36 +3,11 @@
 
 #include "NNFCUMemoryPool.h"
 
-namespace cuda
-{
+namespace nnf {
 
-int16_t CUDAStream::device_index() const noexcept
-{
-    return DeviceIndex;
-}
+namespace cuda {
 
-int32_t CUDAStream::stream_id() const noexcept
-{
-    return StreamId;
-}
-
-cudaStream_t CUDAStream::stream() const
-{
-    
-}
-
-bool CUDAStream::operator==(const CUDAStream &other) const noexcept
-{
-    return this->DeviceIndex == other.device_index() && this->StreamId == other.stream_id();
-}
-
-bool CUDAStream::operator!=(const CUDAStream &other) const noexcept
-{
-    return !(*this == other);
-}
-
-namespace cache
-{
+namespace cache {
 
 static bool CUDABlockComparator(const CUDABlock* a, const CUDABlock* b)
 {
@@ -57,5 +32,7 @@ static size_t round_size(const size_t size)
 } // namespace cache
 
 } // namespace cuda
+
+} // namespace nnf
 
 #endif

@@ -4,6 +4,8 @@
 #include <src/NNFBase/NNFBaseMacros.h>
 #include <cuda.h>
 
+#define NNF_COMPILE_TIME_MAX_GPUS 16
+
 #define NNFCU_CHECK(EXPR)                                                     \
     do {                                                                      \
         cudaError_t _err = EXPR;                                              \

@@ -7,8 +7,6 @@ namespace nnf{
 
 namespace utils{
 
-typedef unsigned int uint32_t;
-
 // To save local error information, like file, function and line
 struct SourceLocation{
     const char* function;

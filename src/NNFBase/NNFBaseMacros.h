@@ -10,9 +10,13 @@
 #define NNF_CONCAT3(x, y, z) x##y##z
 #define NNF_CONCAT4(x, y, z, a) x##y##z##a
 
-#define NNF_STR_CONCAT2(x, y) (static_cast<std::string>(x)+y)
-#define NNF_STR_CONCAT3(x, y, z) (static_cast<std::string>(x)+y+z)
-#define NNF_STR_CONCAT4(x, y, z, a) (static_cast<std::string>(x)+y+z+a)
-#define NNF_STR_CONCAT5(a, b, c, d, e) (static_cast<std::string>(a)+b+c+d+e)
+// #define NNF_STR_CONCAT2(x, y) (static_cast<std::string>(x)+y)
+// #define NNF_STR_CONCAT3(x, y, z) (static_cast<std::string>(x)+y+z)
+// #define NNF_STR_CONCAT4(x, y, z, a) (static_cast<std::string>(x)+y+z+a)
+// #define NNF_STR_CONCAT5(a, b, c, d, e) (static_cast<std::string>(a)+b+c+d+e)
+
+#define NNF_DISPILE_COPY_AND_ASSIGN(classname) \
+    classname(const classname&) = delete;      \
+    classname& operator=(const classname&) = delete
 
 #endif

@@ -1,14 +1,12 @@
-include_directories(generic)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
-set(FTen_Gen_CPPS
-    generic/FArray.cpp
-)
+project(FTen)
 
-add_library(FTen_LIB SHARED ${FTen_Gen_CPPS})
+set(FTEN_LIBS ${FTEN_LIBS}
+${CMAKE_CURRENT_SOURCE_DIR}/cpu/NNFCAllocator.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/cpu/NNFMemoryPool.cpp)
 
-install(FILES
-    FTensor.h
-    DESTINATION "${NNF_INSTUDE_DIR}/inclube")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/cuda")
 
-install(TARGETS FTen_LIB
-    LIBRARY DESTINATION "${NNF_INSTUDE_DIR}/generic")
+add_subdirectory(cuda)
+set(FTEN_LIBS ${FTEN_LIBS} gpu)

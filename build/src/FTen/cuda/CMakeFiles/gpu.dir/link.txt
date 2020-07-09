@@ -1,0 +1,2 @@
+/usr/bin/ar qc libgpu.a CMakeFiles/gpu.dir/NNFCUAllocator.cpp.o CMakeFiles/gpu.dir/NNFCUMemoryPool.cpp.o CMakeFiles/gpu.dir/NNFCUStream.cpp.o
+/usr/bin/ranlib libgpu.a

@@ -1,12 +1,22 @@
 [
 {
   "directory": "/home/LineZ/NNF/build",
-  "command": "/usr/bin/g++ -Dhello_shared_library_EXPORTS -I/home/LineZ/NNF  -std=c++11 -g -fPIC -o CMakeFiles/hello_shared_library.dir/src/NNFBase/utils/NNFException.cpp.o -c /home/LineZ/NNF/src/NNFBase/utils/NNFException.cpp",
-  "file": "/home/LineZ/NNF/src/NNFBase/utils/NNFException.cpp"
+  "command": "/usr/bin/g++  -I/usr/local/cuda-10.1/include -I/home/LineZ/NNF  -std=c++14 -g -o CMakeFiles/test_nnf.dir/main.cpp.o -c /home/LineZ/NNF/main.cpp",
+  "file": "/home/LineZ/NNF/main.cpp"
 },
 {
-  "directory": "/home/LineZ/NNF/build",
-  "command": "/usr/bin/g++  -I/home/LineZ/NNF  -std=c++11 -g -o CMakeFiles/hello_shared_binary.dir/main.cpp.o -c /home/LineZ/NNF/main.cpp",
-  "file": "/home/LineZ/NNF/main.cpp"
+  "directory": "/home/LineZ/NNF/build/src/FTen/cuda",
+  "command": "/usr/bin/g++  -I/usr/local/cuda-10.1/include -I/home/LineZ/NNF -I/home/LineZ/NNF/src/FTen/cuda  -std=c++14 -g -o CMakeFiles/gpu.dir/NNFCUAllocator.cpp.o -c /home/LineZ/NNF/src/FTen/cuda/NNFCUAllocator.cpp",
+  "file": "/home/LineZ/NNF/src/FTen/cuda/NNFCUAllocator.cpp"
+},
+{
+  "directory": "/home/LineZ/NNF/build/src/FTen/cuda",
+  "command": "/usr/bin/g++  -I/usr/local/cuda-10.1/include -I/home/LineZ/NNF -I/home/LineZ/NNF/src/FTen/cuda  -std=c++14 -g -o CMakeFiles/gpu.dir/NNFCUMemoryPool.cpp.o -c /home/LineZ/NNF/src/FTen/cuda/NNFCUMemoryPool.cpp",
+  "file": "/home/LineZ/NNF/src/FTen/cuda/NNFCUMemoryPool.cpp"
+},
+{
+  "directory": "/home/LineZ/NNF/build/src/FTen/cuda",
+  "command": "/usr/bin/g++  -I/usr/local/cuda-10.1/include -I/home/LineZ/NNF -I/home/LineZ/NNF/src/FTen/cuda  -std=c++14 -g -o CMakeFiles/gpu.dir/NNFCUStream.cpp.o -c /home/LineZ/NNF/src/FTen/cuda/NNFCUStream.cpp",
+  "file": "/home/LineZ/NNF/src/FTen/cuda/NNFCUStream.cpp"
 }
 ]

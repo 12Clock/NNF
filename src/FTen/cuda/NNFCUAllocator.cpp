@@ -6,12 +6,13 @@
 #include <assert.h>
 #include <sstream>
 #include <iostream>
+#include <cuda_runtime_api.h>
 
-namespace cuda
-{
+namespace nnf {
 
-namespace cache
-{
+namespace cuda {
+
+namespace cache {
 
 // ============================[Stat, DeviceStats function]================================
 void update_stat(Stat& stat, int64_t amount) {
@@ -53,13 +54,15 @@ size_t DeviceAllocator::try_merge_blocks(CUDABlock* dst, CUDABlock* src, CUDABlo
         return 0;
     }
 
-    if(dst->prev == src){
+    if(dst->prev == src){ 
+        // In the cuda memory pool, the dst block is in front of the src block
         dst->ptr = src->ptr;
         dst->prev = src->prev;
         if(dst->prev){
             dst->prev->next = dst;
         }
     }else{
+        // In the cuda memory pool, the dst block is in back of the src block
         dst->next = src->next;
         if(dst->next){
             dst->next->prev = dst;
@@ -106,6 +109,14 @@ void DeviceAllocator::free_block(CUDABlock* block)
       }
     }
 
+    active_blocks.erase(block);
+    pool.insert(block);
+
+    if (block->is_split()) {
+      net_change_inactive_split_blocks += 1;
+      net_change_inactive_split_size += block->size;
+    }
+
     StatTypes stat_types;
     stat_types[static_cast<size_t>(StatType::AGGREGATE)] = true;
     stat_types[static_cast<size_t>(get_stat_type_for_pool(*(block->pool)))] = true;
@@ -136,12 +147,12 @@ void DeviceAllocator::process_events()
             cudaGetLastError(); // make cudaErrorNotReady to cudaSuccess
             break;
         }else if(err != cudaSuccess){
-            throw cudaGetErrorString(err);
+            NNF_ERROR(cudaGetErrorString(err));
         }
 
-        cudaError_t err = cudaEventDestroy(event); //Destroy event that run successfully
+        err = cudaEventDestroy(event); //Destroy event that run successfully
         if(err != cudaSuccess){
-            throw cudaGetErrorString(err);
+            NNF_ERROR(cudaGetErrorString(err));
         }
 
         block->event_count--;
@@ -212,6 +223,8 @@ bool DeviceAllocator::alloc_block(AllocParams& params, bool isRetry)
     params.block = new CUDABlock(params.device(), params.stream(), size, params.pool, ptr);
     update_stat_array(stats.segment, 1, params.stat_types);
     update_stat_array(stats.reserved_bytes, size, params.stat_types);
+
+    return (params.block != nullptr);
 }
 
 void DeviceAllocator::synchronize_and_free_events()
@@ -239,9 +252,7 @@ void DeviceAllocator::free_blocks(CUDABlockPool& pool)
     while(it != pool.end()){
         CUDABlock* block = *it;
         if(!block->prev && !block->next){
-            if(cudaFree(block->ptr)){
-                throw "Can't Free block (DeviceAllocator::free_blocks)";
-            }
+            NNFCU_CHECK(cudaFree(block->ptr));
 
             StatTypes stat_types;
             stat_types[static_cast<size_t>(StatType::AGGREGATE)] = true;
@@ -302,7 +313,7 @@ cudaEvent_t DeviceAllocator::create_event_internal() {
     cudaEvent_t event;
     NNFCU_CHECK(cudaEventCreateWithFlags(&event, cudaEventDisableTiming));
     return event;
-  }
+}
 
 void DeviceAllocator::insert_events(CUDABlock* block)
 {
@@ -314,8 +325,13 @@ void DeviceAllocator::insert_events(CUDABlock* block)
         NNFCU_CHECK(cudaSetDevice(it->device_index()));
 
         cudaEvent_t event = create_event_internal();
-        NNFCU_CHECK(cudaEventRecord(event, it->stream()));
+        NNFCU_CHECK(cudaEventRecord(event, it->cudaStream()));
+
+        block->event_count++;
+        cuda_events.emplace_back(event, block);
     }
+
+    NNFCU_CHECK(cudaSetDevice(prev_device));
 }
 
 //public:
@@ -338,9 +354,7 @@ CUDABlock* DeviceAllocator::malloc(int device, size_t size, cudaStream_t stream)
         || alloc_block(params, false)
         || (free_cached_blocks() && alloc_block(params, true));
     
-    #ifdef DEBUG
-    assert((!block_found && params.err != cudaSuccess || params.block));
-    #endif
+    NNF_INTERNAL_ASSERT((!block_found && params.err != cudaSuccess || params.block));
 
     if(!block_found){
         if(params.err == cudaErrorMemoryAllocation){
@@ -355,12 +369,13 @@ CUDABlock* DeviceAllocator::malloc(int device, size_t size, cudaStream_t stream)
                 format_size(stats.reserved_bytes[static_cast<size_t>(StatType::AGGREGATE)].current),
                 " reserved in total by NNF)");
         } else {
-            NNF_ERROR_PRINT(NNF_STR_CONCAT3(cudaGetErrorString(params.err), " in ", __FILE__));
+            NNFCU_CHECK(params.err);
         }
     }
 
     CUDABlock* block = params.block;
     CUDABlock* remaining = nullptr;
+    NNF_INTERNAL_ASSERT(block);
 
     const bool already_spilt = block->is_split();
     if(should_split(block, size)){
@@ -374,7 +389,7 @@ CUDABlock* DeviceAllocator::malloc(int device, size_t size, cudaStream_t stream)
         block->next = remaining;
         remaining->prev = block;
 
-        remaining->ptr = remaining->ptr + size;
+        remaining->ptr = static_cast<void*>(static_cast<char*>(remaining->ptr) + size);
         remaining->size -= size;
         pool.insert(remaining);
 
@@ -416,12 +431,16 @@ void DeviceAllocator::free(CUDABlock* block)
     update_stat_array(stats.allocated_bytes, -block->size, stat_types);
 
     if(!block->stream_uses.empty()){
-        
+        insert_events(block);
+    }else{
+        free_block(block);
     }
 }
 
 } // namespace cache
 
 } // namespace cuda
+
+} // namespace nnf
 
 #endif

@@ -1,8 +1,11 @@
 #ifndef NNFCU_ALLOCATOR_H
 #define NNFCU_ALLOCATOR_H
 
-#include "NNFCUMemoryPool.h"
-#include "NNFCUMemoryPool.cpp"
+#include <src/FTen/cuda/NNFCUMemoryPool.h>
+#include <src/FTen/cuda/NNFCUMemoryPool.cpp>
+#include <src/FTen/cuda/NNFCUStream.h>
+#include <src/FTen/cuda/NNFCUStream.cpp>
+
 #include <set>
 #include <bitset>
 #include <mutex>
@@ -24,13 +27,13 @@ class CUDAOutOfMemoryError: nnf::utils::NNF_Error{
 
 } // namespace utils
 
-} // namespace nnf
-
 namespace cuda
 {
 
 namespace cache
 {
+
+using CUDAStream = nnf::cuda::CUDAStream;
 
 struct Stat {
   int64_t current = 0;
@@ -38,6 +41,9 @@ struct Stat {
   int64_t allocated = 0;
   int64_t freed = 0;
 };
+
+void reset_accumulated_stat(Stat& stat);
+void reset_peak_stat(Stat& stat);
 
 enum struct StatType : uint64_t {
   AGGREGATE = 0,
@@ -64,9 +70,6 @@ struct DeviceStats {
 
   int64_t num_ooms = 0;            // COUNT: total number of OOMs (i.e. failed calls to CUDA after cache flush)
 };
-
-typedef bool (*Comparator)(const CUDABlock *, const CUDABlock *);
-typedef std::set<CUDABlock *, Comparator> CUDABlockPool;
 
 typedef std::bitset<static_cast<size_t>(StatType::NUM_TYPES)> StatTypes;
 
@@ -107,31 +110,82 @@ class DeviceAllocator
     //----------------------------------function-----------------------------------------
 
     size_t try_merge_blocks(CUDABlock* dst, 
-                             CUDABlock* src, 
-                             CUDABlockPool& pool); // 
+                            CUDABlock* src, 
+                            CUDABlockPool& pool); // Try to merge two blocks of cuda memory.
     StatType get_stat_type_for_pool(const CUDABlockPool& pool) const;
-    void free_block(CUDABlock* block);      //
+    void free_block(CUDABlock* block);      // Execute code put a unused block into the pool
     void process_events();                  // Process outstanding cudaEvents
-    CUDABlockPool& get_pool(size_t size);
-    static size_t get_allocation_size(const size_t size);
-    bool get_free_block(AllocParams& params);
-    bool trigger_free_memory_callbacks(AllocParams& params); // recycle free memory by Gabage Collector(GC)
-    bool alloc_block(AllocParams& params, bool isRetry);
-    void synchronize_and_free_events();
-    void free_blocks(CUDABlockPool& pool);
-    bool free_cached_blocks();
+    CUDABlockPool& get_pool(size_t size);   // Choose pool by size
+    static size_t get_allocation_size(const size_t size); // Get the actual size of the allocated memory
+    bool get_free_block(AllocParams& params); // Find the block that best fits the current size
+    bool trigger_free_memory_callbacks(AllocParams& params); // Recycle free memory by Gabage Collector(GC)
+    bool alloc_block(AllocParams& params, bool isRetry); // 
+    void synchronize_and_free_events(); // Synchronize all events and destroy events in cuda_events
+    void free_blocks(CUDABlockPool& pool); // Free a large block of unused contiguous memory in pool
+    bool free_cached_blocks(); // Synchronize all events and free all blocks
     static std::string format_size(size_t size);
-    bool should_split(CUDABlock* block, size_t size);
-    void insert_events(CUDABlock* block);
-    cudaEvent_t create_event_internal();
+    bool should_split(CUDABlock* block, size_t size); // Determine whether to split a block
+    cudaEvent_t create_event_internal(); // create a event
+    void insert_events(CUDABlock* block); // Insert events into all the streams of using this block
 
   public:
     DeviceAllocator(): large_blocks(CUDABlockComparator), small_blocks(CUDABlockComparator) {} //function CUDABlockComparator is from NNFCUMemoryPool.cpp
 
-    CUDABlock* malloc(int device, size_t size, cudaStream_t stream);
-    void free(CUDABlock *block);
-    void* getBaseAllocation(CUDABlock *block, size_t *outSize);
-    void recordStream(CUDABlock *block, cuda::CUDAStream stream);
+    CUDABlock* malloc(int device, size_t size, cudaStream_t stream); // Apply to allocate a block of memory
+    void free(CUDABlock *block); // Apply Free a block
+    void* getBaseAllocation(CUDABlock *block, size_t *outSize)=delete;
+
+    // Block records a stream
+    void recordStream(CUDABlock *block, CUDAStream stream) {
+      if(stream.cudaStream() == block->stream) {
+          return;
+      }
+      block->stream_uses.insert(stream);
+    }
+    // Get the current device status
+    DeviceStats getStats() {
+      std::lock_guard<std::recursive_mutex> lock(mutex);
+      return stats;
+    }
+    // Empty all chahe
+    void emptyCache() {
+      std::lock_guard<std::recursive_mutex> lock(mutex);
+      free_cached_blocks();
+    }
+    // Resets the historical accumulated stats for the device
+    void resetAccumulatedStats() {
+      std::lock_guard<std::recursive_mutex> lock(mutex);
+
+      for (size_t statType = 0; statType < static_cast<size_t>(StatType::NUM_TYPES); ++statType) {
+        reset_accumulated_stat(stats.allocation[statType]);
+        reset_accumulated_stat(stats.segment[statType]);
+        reset_accumulated_stat(stats.active[statType]);
+        reset_accumulated_stat(stats.inactive_split[statType]);
+        reset_accumulated_stat(stats.allocated_bytes[statType]);
+        reset_accumulated_stat(stats.reserved_bytes[statType]);
+        reset_accumulated_stat(stats.active_bytes[statType]);
+        reset_accumulated_stat(stats.inactive_split_bytes[statType]);
+      }
+
+      stats.num_alloc_retries = 0;
+      stats.num_ooms = 0;
+    }
+
+    // Resets the historical peak stats for the device
+    void resetPeakStats() {
+      std::lock_guard<std::recursive_mutex> lock(mutex);
+
+      for (size_t statType = 0; statType < static_cast<size_t>(StatType::NUM_TYPES); ++statType) {
+        reset_peak_stat(stats.allocation[statType]);
+        reset_peak_stat(stats.segment[statType]);
+        reset_peak_stat(stats.active[statType]);
+        reset_peak_stat(stats.inactive_split[statType]);
+        reset_peak_stat(stats.allocated_bytes[statType]);
+        reset_peak_stat(stats.reserved_bytes[statType]);
+        reset_peak_stat(stats.active_bytes[statType]);
+        reset_peak_stat(stats.inactive_split_bytes[statType]);
+      }
+    }
 };
 
 
@@ -139,5 +193,7 @@ class DeviceAllocator
 } // namespace cache
 
 } // namespace cuda
+
+} // namespace nnf
 
 #endif

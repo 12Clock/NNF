@@ -3,46 +3,36 @@ cmake_minimum_required(VERSION 2.8)
 project(nnf)
 
 include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
+CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
+# CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
 
 # check results and add flag
-if(COMPILER_SUPPORTS_CXX11)#
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-elseif(COMPILER_SUPPORTS_CXX0X)#
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+if(COMPILER_SUPPORTS_CXX14)#
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+# elseif(COMPILER_SUPPORTS_CXX0X)#
+#     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 else()
-    message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
+    message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++14 support. Please use a different C++ compiler.")
 endif()
 
-# set(NNF_INSTUDE_DIR ${PROJECT_SOURCE_DIR}/NNFT)
-
-# ADD_SUBDIRECTORY(src/FTen)
-
-set(SOURCES 
-# src/NNFBase/NNFBaseMacros.h
-src/NNFBase/utils/NNFException.cpp
-# src/NNFBase/utils/NNFException.h
-# src/NNFBase/utils/NNFStringUtils.h
-# src/NNFBase/utils/NNFExceptionMacros.h
+find_package(CUDA)
+include_directories(
+    "${CUDA_INCLUDE_DIRS}"
+    "${PROJECT_SOURCE_DIR}"
 )
 
-add_library(hello_shared_library
-    SHARED ${SOURCES}
+add_subdirectory(src/FTen)
+
+set(EXTRA_LIBS 
+    ${EXTRA_LIBS} 
+    ${FTEN_LIBS}
 )
 
-add_library(hello::library ALIAS hello_shared_library)
-
-target_include_directories(hello_shared_library
-    PUBLIC
-        ${PROJECT_SOURCE_DIR}
-)
-
-add_executable(hello_shared_binary
+add_executable(test_nnf
     main.cpp
 )
 
-target_link_libraries(hello_shared_binary
-    PRIVATE
-        hello::library
+target_link_libraries(test_nnf
+    ${EXTRA_LIBS}
+    ${CUDA_LIBRARIES}
 )
